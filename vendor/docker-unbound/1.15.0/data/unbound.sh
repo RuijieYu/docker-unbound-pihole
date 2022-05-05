@@ -358,6 +358,9 @@ server:
 remote-control:
     control-enable: no
 EOT
+    # when generating the config file, also generate these
+    # required files to avoid error messages
+    touch /opt/unbound/etc/unbound/{a,srv,forward}-records.conf
 fi
 
 mkdir -p /opt/unbound/etc/unbound/dev && \
