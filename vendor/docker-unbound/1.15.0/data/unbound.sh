@@ -75,6 +75,10 @@ server:
     # and port.
     interface: 0.0.0.0@53
 
+    # disable ipv6 because of errors
+    do-ip6: no
+    prefer-ip6: no
+
     # Rotates RRSet order in response (the pseudo-random number is taken from
     # the query ID, for speed and thread safety).
     rrset-roundrobin: yes
