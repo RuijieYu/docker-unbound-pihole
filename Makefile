@@ -16,3 +16,7 @@ build: docker-compose.yml $(UNBOUND_DOCKERFILE)
 .PHONY: logs-pihole
 logs-pihole:
 	sudo docker logs dup-pihole
+
+.PHONY: shell-pihole shell-unbound
+shell-pihole shell-unbound: shell-%:
+	sudo docker exec -it dup-$* bash
