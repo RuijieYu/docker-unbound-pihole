@@ -2,6 +2,7 @@ version: "3"
 services:
   unbound: # private service as backend of pihole
     container_name: dup-unbound
+    hostname: dup-unbound
     build: vendor/docker-unbound/1.15.0/
     volumes:
       - ./unbound:/opt/unbound/etc/unbound/
@@ -12,13 +13,11 @@ services:
 
   pihole: # public-facing
     container_name: dup-pihole
-    image: docker.io/pihole/pihole:2022.04
+    hostname: dup-pihole
+    image: docker.io/pihole/pihole:latest
     environment:
       PIHOLE_DNS_: dup-unbound # enforce its dns entries
       DNSSEC: true
-    dns:
-      - localhost
-      - dup-unbound
     volumes:
       - ./pihole/etc:/etc/pihole/
       - ./pihole/masq:/etc/dnsmasq.d/
