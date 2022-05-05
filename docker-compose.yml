@@ -1,0 +1,27 @@
+version: "3"
+services:
+  # unbound does not need its service exposed to the outside
+  unbound:
+    container_name: dup-unbound
+    # build:
+    #   dockerfile: Containerfile.unbound
+    image: docker.io/mvance/unbound:1.15.0
+    volumes:
+      - ./unbound:/opt/unbound/etc/unbound/
+    restart: unless-stopped
+
+  # pihole is the one that exposes stuff to the outside
+  pihole:
+    container_name: dup-pihole
+    image: docker.io/pihole/pihole:2022.04
+    env:
+      WEBPASSWORD: pihole # initial password
+    ports:
+      - 5354:53/udp
+      - 5354:53/tcp
+      - 8880:80/tcp
+    volumes:
+      - ./pihole/etc:/etc/pihole/
+      - ./pihole/masq:/etc/dnsmasq.d/
+    depends_on:
+      - unbound
