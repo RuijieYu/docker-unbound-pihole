@@ -19,13 +19,16 @@ services:
       DNSSEC: true
       WEBPASSWORD: pihole
     volumes:
+      # pihole operations
       - ./pihole/etc:/etc/pihole/
       - ./pihole/masq:/etc/dnsmasq.d/
-      - ./pihole/adlists:/etc/adlists/:ro
-      - ./pihole/adcron/update-adlists:/etc/cron.d/adcron:ro
-    # configure DNS servers to avoid issues from `pihole -g`.  ref:
-    # https://github.com/pi-hole/docker-pi-hole/issues/342#issuecomment-430252832
+      # pihole adlist updates
+      - ./scripts/:/opt/adlists/:ro                 # script dir
+      - ./assets/adlists.list:/etc/adlists.list:ro  # ad list file
+      - ./assets/adlists.cron:/etc/cron.d/adcron:ro # cron job
     dns:
+      # configure DNS servers to avoid issues from `pihole -g`.  ref:
+      # https://github.com/pi-hole/docker-pi-hole/issues/342#issuecomment-430252832
       - 127.0.0.1
       - 1.1.1.1
     extra_hosts:

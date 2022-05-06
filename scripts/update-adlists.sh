@@ -3,14 +3,13 @@
 #
 # Since pihole v5, updates to the adlist are done directly to the underlying
 # SQLite database.  The script should only be run after the gravity.db file is
-# created.
+# created -- and will automatically run `pihole -g` when something has been
+# inserted into the database because of this script.
 #
 # ref:
 # https://discourse.pi-hole.net/t/restoring-default-pi-hole-adlist-s/32323
 #
 # Return codes:
-## 1
-### nothing updated, generally a success
 ## 4
 ### SQLite3 error
 ## 8
@@ -19,6 +18,11 @@
 ### adlists file absent or unable to read
 ## 12
 ### (unlikely) cannot write to temp file generated from `mktemp`
+#
+# $1 = name of a NL-separated file, each with a comment or a URL to a file
+# $2 = name of gravity database file, default /etc/pihole/gravity.db
+# $3 = (internal) file to save temporary query for inspection
+# $NO_SQL_UPDATE = (internal) do not execute sql
 
 show_help() {
     echo "$0 <adlists> <dbfile>"
@@ -59,11 +63,17 @@ query_exec() {
     # maybe save query
     save_query
 
+    # do not update gravity when asked not to
     test -n "$NO_SQL_UPDATE" || {
-        { sqlite3 -bail -cmd '.changes on' -nofollow "$DB_FILE" <"$QUERY_FILE" || return 4; } |
-            { ! grep -Pq '^changes:[[:space:]]*0[[:space:]]'; }
+        { # when sql fails, exit 4
+            sqlite3 -bail -cmd '.changes on' -nofollow "$DB_FILE" <"$QUERY_FILE" || return 4
+        } |
+            { # when something has changed, update pihole
+                grep -Pq '^changes:[[:space:]]*0[[:space:]]' || pihole -g
+            }
     }
 }
+
 ensure_db() { test -f "$DB_FILE" -a -r "$DB_FILE" -a -w "$DB_FILE" || return 8; }
 
 save_query() {
@@ -72,7 +82,6 @@ save_query() {
         cp -T "$QUERY_FILE" "$SAVE_QUERY_FILE"
 }
 
-# $1 = name of a NL-separated file, each with a comment or a URL to a file
 populate() {
     # fail if ADLISTS file cannot be opened
     exec <"$1" || return 10

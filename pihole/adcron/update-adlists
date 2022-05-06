@@ -1,5 +1,0 @@
-# -*- mode: crontab; -*-
-LOGFILE=/root/update-adlists.log
-
-# MIN HOUR DAY MONTH DOW USER CMD
-* * * * * root /etc/adlists/update-adlists.sh /etc/adlists/adlists.list /etc/pihole/gravity.db &>>"$LOGFILE"
