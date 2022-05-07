@@ -1,3 +1,5 @@
+PROJECT_NAME = dup
+
 UNBOUND_VERSION = 1.15.0
 UNBOUND_DOCKERFILE = vendor/docker-unbound/$(UNBOUND_VERSION)/Dockerfile
 
@@ -11,22 +13,22 @@ DUP_FILES += $(UNBOUND_DOCKERFILE)
 start build: %: .stages/% | .stages/
 
 .stages/start: build
-	sudo docker compose up --detach --remove-orphans
+	sudo docker compose -p $(PROJECT_NAME) up --detach --remove-orphans
 	@touch $@
 
 .PHONY: stop
 stop: | .stages/
-	sudo docker compose down
+	sudo docker compose -p $(PROJECT_NAME) down
 	$(RM) .stages/start
 
 .PHONY: restart
 restart: | .stages/
-	sudo docker compose restart
+	sudo docker compose -p $(PROJECT_NAME) restart
 	touch .stages/start
 
 .PHONY: build
 .stages/build: $(UNBOUND_DOCKERFILE) $(DUP_COMPONENTS) | .stages/
-	sudo docker compose build --parallel
+	sudo docker compose -p $(PROJECT_NAME) build --parallel
 
 .PHONY: $(patsubst %,logs-%,$(DUP_COMPONENTS))
 $(patsubst %,logs-%,$(DUP_COMPONENTS)): logs-%: start
