@@ -27,7 +27,7 @@ restart: | .stages/
 	touch .stages/start
 
 .PHONY: build
-.stages/build: $(UNBOUND_DOCKERFILE) $(DUP_COMPONENTS) | .stages/
+.stages/build: $(DUP_FILES) | .stages/
 	sudo docker compose -p $(PROJECT_NAME) build --parallel
 
 .PHONY: $(patsubst %,logs-%,$(DUP_COMPONENTS))
