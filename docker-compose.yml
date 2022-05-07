@@ -6,7 +6,7 @@ services:
     hostname: dup-unbound
     build: vendor/docker-unbound/1.15.0/
     volumes:
-      - ./unbound:/opt/unbound/etc/unbound/
+      - unbound:/opt/unbound/etc/unbound/
     # must be running
     restart: unless-stopped
 
@@ -20,8 +20,8 @@ services:
       WEBPASSWORD: pihole
     volumes:
       # pihole operations
-      - ./pihole/etc:/etc/pihole/
-      - ./pihole/masq:/etc/dnsmasq.d/
+      - pihole:/etc/pihole/
+      - pihole-masq:/etc/dnsmasq.d/
       # pihole adlist updates
       - ./scripts/:/opt/adlists/:ro                 # script dir
       - ./assets/adlists.list:/etc/adlists.list:ro  # ad list file
