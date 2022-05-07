@@ -40,8 +40,8 @@ services:
       - NET_ADMIN
     # exported ports
     ports:
-      - 5354:53/udp
-      - 5354:53/tcp
+      - 53:53/udp
+      - 53:53/tcp
       - 8880:80/tcp
     # must be running
     restart: unless-stopped
