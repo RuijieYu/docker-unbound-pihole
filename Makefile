@@ -1,35 +1,32 @@
 UNBOUND_VERSION = 1.15.0
 UNBOUND_DOCKERFILE = vendor/docker-unbound/$(UNBOUND_VERSION)/Dockerfile
 
-PIHOLE_ADLIST_LOCAL_FILE = adlists.list
-PIHOLE_ADLIST_DEST_FILE = pihole/etc/adlists.list
-
-ADLIST_DOCKERFILE = assets/pihole-adlist.containerfile
-
 DUP_COMPONENTS = unbound pihole
 DUP_FILES = docker-compose.yml Makefile
 DUP_FILES += $(UNBOUND_DOCKERFILE)
-# DUP_FILES += $(ADLIST_DOCKERFILE)
 
-.PHONY: start
-start: .start
-.start: $(UNBOUND_DOCKERFILE) $(DUP_COMPONENTS)
-	sudo docker compose up --build --detach --remove-orphans
+.DEFAULT_GOAL: start
+
+.PHONY: start build
+start build: %: .stages/% | .stages/
+
+.stages/start: build
+	sudo docker compose up --detach --remove-orphans
 	@touch $@
 
 .PHONY: stop
-stop:
+stop: | .stages/
 	sudo docker compose down
-	$(RM) .start
+	$(RM) .stages/start
 
 .PHONY: restart
-restart:
+restart: | .stages/
 	sudo docker compose restart
-	touch .start
+	touch .stages/start
 
 .PHONY: build
-build: docker-compose.yml $(UNBOUND_DOCKERFILE) Makefile
-	sudo docker compose build
+.stages/build: $(UNBOUND_DOCKERFILE) $(DUP_COMPONENTS) | .stages/
+	sudo docker compose build --parallel
 
 .PHONY: $(patsubst %,logs-%,$(DUP_COMPONENTS))
 $(patsubst %,logs-%,$(DUP_COMPONENTS)): logs-%: start
@@ -43,15 +40,5 @@ $(patsubst %,shell-%,$(DUP_COMPONENTS)): shell-%: start
 passwd-pihole: passwd-%: start
 	sudo docker exec -it dup-$* pihole -a -p
 
-# # apparently dest-file is overwritten randomly, so DEST newer than LOCAL
-# # if DEST newer than TAG, then run?
-# .PHONY: adlist
-# adlist:
-# .adlist: $(PIHOLE_ADLIST_LOCAL_FILE)
-#	touch .adlist
-# $(PIHOLE_ADLIST_LOCAL_FILE): $(PIHOLE_ADLIST_DEST_FILE)
-#	touch $(PIHOLE_ADLIST_LOCAL_FILE)
-#	sudo install -Dvm0444 $(PIHOLE_ADLIST_LOCAL_FILE) -T $(PIHOLE_ADLIST_DEST_FILE)
-#	touch $(PIHOLE_ADLIST_LOCAL_FILE)
-
-# $(MAKE) stop
+%/:
+	mkdir -p $@
