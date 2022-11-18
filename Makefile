@@ -1,6 +1,6 @@
 PROJECT_NAME = dup
 
-UNBOUND_VERSION = 1.15.0
+UNBOUND_VERSION = 1.17.0
 UNBOUND_DOCKERFILE = vendor/docker-unbound/$(UNBOUND_VERSION)/Dockerfile
 
 DUP_COMPONENTS = unbound pihole
@@ -28,7 +28,7 @@ restart: | .stages/
 
 .PHONY: build
 .stages/build: $(DUP_FILES) | .stages/
-	sudo docker compose -p $(PROJECT_NAME) build --parallel
+	sudo docker compose -p $(PROJECT_NAME) build --parallel --pull
 
 .PHONY: $(patsubst %,logs-%,$(DUP_COMPONENTS))
 $(patsubst %,logs-%,$(DUP_COMPONENTS)): logs-%: start

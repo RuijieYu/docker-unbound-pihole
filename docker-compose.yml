@@ -10,7 +10,7 @@ services:
   unbound: # private service as backend of pihole
     container_name: dup-unbound
     hostname: dup-unbound
-    build: vendor/docker-unbound/1.15.0/
+    build: vendor/docker-unbound/1.17.0/
     volumes:
       - unbound:/opt/unbound/etc/unbound/
     # must be running
